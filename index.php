@@ -51,10 +51,10 @@ require_once 'config.php';
       </div>
      </div>
      <div class="hidden md:flex items-center space-x-3">
-      <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="#">
+      <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="login.php">
        Log In
       </a>
-      <a class="py-2 px-2 font-medium text-white bg-blue-500 rounded hover:bg-blue-400 transition duration-300" href="#">
+      <a class="py-2 px-2 font-medium text-white bg-blue-500 rounded hover:bg-blue-400 transition duration-300" href="signup.php">
        Sign Up
       </a>
      </div>
