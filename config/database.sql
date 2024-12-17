@@ -49,9 +49,10 @@ INSERT INTO users (role_id, name, email, password) VALUES
 (1, 'Alice', 'alice@example.com', 'hashed_password_1'),
 (2, 'Bob', 'bob@example.com', 'hashed_password_2');
 
-INSERT INTO services (name, description, price) VALUES
-('Table pour 2 personnes', 'Table pour deux personnes dans le restaurant', 20.00),
-('Chambre simple', 'Chambre avec un lit simple dans l\'hôtel', 50.00');
+INSERT INTO services (name, description, price) 
+VALUES 
+  ('Table pour 2 personnes', 'Table pour deux personnes dans le restaurant', 20.00),
+  ('Chambre simple', 'Chambre avec un lit simple dans l hôtel', 50.00);
 
 INSERT INTO available_slots (service_id, slot_time, is_booked) VALUES
 (1, '2024-12-20 18:00:00', FALSE),
