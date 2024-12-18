@@ -34,39 +34,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Room Reservation</title>
+    <title>Reservation Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+
 </head>
-<body>
-    <h1>Make a Reservation</h1>
-    <form action="reservation.php" method="POST">
-        <label for="room">Select Room:</label>
-        <select name="room" id="room">
-            <option value="luxurious_room">Luxurious Room</option>
-            <option value="deluxe_room">Deluxe Room</option>
-            <option value="executive_suite">Executive Suite</option>
-            <option value="standard_room">Standard Room</option>
-        </select>
-        <br><br>
+<body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
+        <h1 class="text-2xl font-semibold text-center text-gray-700 mb-6">Make a Reservation</h1>
+        <form action="reservation.php" method="POST" class="space-y-6">
+            <!-- Hidden input for the user_id (assumed logged-in user) -->
+            <input type="hidden" name="user_id" value="1"> <!-- Replace with dynamic user ID from session -->
 
-        <label for="amenities">Select Amenities:</label><br>
-        <input type="checkbox" name="amenities[]" value="swimming_pool"> Swimming Pool <br>
-        <input type="checkbox" name="amenities[]" value="fitness_center"> Fitness Center <br>
-        <input type="checkbox" name="amenities[]" value="spa"> Spa <br><br>
+            <!-- Service Selection -->
+            <div>
+                <label for="service" class="block text-sm font-medium text-gray-600">Select Service</label>
+                <select name="service_id" id="service" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <!-- The service options should be dynamically populated from the services table -->
+                    <option value="1">Luxurious Room</option>
+                    <option value="2">Deluxe Room</option>
+                    <option value="3">Executive Suite</option>
+                    <option value="4">Standard Room</option>
+                    <!-- Add more services as necessary -->
+                </select>
+            </div>
 
-        <label for="dining">Select Dining:</label><br>
-        <input type="checkbox" name="dining[]" value="gourmet_restaurant"> Gourmet Restaurant <br>
-        <input type="checkbox" name="dining[]" value="cafe"> Cafe <br>
-        <input type="checkbox" name="dining[]" value="bar"> Bar <br><br>
+            <!-- Reservation Time -->
+            <div>
+                <label for="reservation_time" class="block text-sm font-medium text-gray-600">Reservation Time</label>
+                <input type="datetime-local" id="reservation_time" name="reservation_time" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
 
-        <label for="reservation_time">Reservation Time:</label>
-        <input type="datetime-local" id="reservation_time" name="reservation_time" required><br><br>
+            <!-- Reservation Status -->
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-600">Reservation Status</label>
+                <select name="status" id="status" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="pending" selected>Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
 
-        <button type="submit">Submit Reservation</button>
-    </form>
+            <!-- Submit Button -->
+            <div>
+                <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Submit Reservation
+                </button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
