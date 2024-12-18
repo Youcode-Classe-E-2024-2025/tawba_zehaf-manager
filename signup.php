@@ -1,93 +1,106 @@
 <?php
-require_once 'config.php'; // Include the database connection
+require_once 'config.php'; // Connexion à la base de données
 
-// Initialize variables for errors and success
+// Initialisation des variables
 $error = '';
 $success = '';
 
+// Vérifie si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
+    // Récupération des données du formulaire
+    $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
+    $role_id = 1; // Role par défaut, 1 = "utilisateur"
 
-    // Check if all fields are filled
-    if (empty($email) || empty($password) || empty($confirm_password)) {
-        $error = "All fields are required.";
-    } elseif ($password !== $confirm_password) {
-        // Check if passwords match
-        $error = "Passwords do not match.";
+    // Validation des champs
+    if (empty($name) || empty($email) || empty($password)) {
+        $error = "Tous les champs sont obligatoires.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Adresse email invalide.";
+    } elseif (strlen($password) < 6) {
+        $error = "Le mot de passe doit contenir au moins 6 caractères.";
     } else {
-        // Check if the email is already used
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user) {
-            $error = "This email is already in use.";
-        } else {
-            // Hash the password
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-            // Insert the user into the database
-            $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (:email, :password)");
-            if ($stmt->execute(['email' => $email, 'password' => $hashed_password])) {
-                $success = "Your account has been successfully created! You can now log in.";
+        try {
+            // Vérifie si l'email existe déjà
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+            $stmt->execute(['email' => $email]);
+            if ($stmt->rowCount() > 0) {
+                $error = "Cet email est déjà utilisé.";
             } else {
-                $error = "An error occurred while creating your account.";
+                // Hash du mot de passe
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                // Insère l'utilisateur dans la base de données
+                $insert_stmt = $pdo->prepare("INSERT INTO users (role_id, name, email, password) 
+                                             VALUES (:role_id, :name, :email, :password)");
+                $insert_stmt->execute([
+                    'role_id' => $role_id,
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => $hashed_password
+                ]);
+
+                $success = "Compte créé avec succès. Vous pouvez vous connecter.";
             }
+        } catch (PDOException $e) {
+            $error = "Erreur lors de l'inscription : " . $e->getMessage();
         }
     }
 }
 ?>
 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Sign Up - Hotel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un compte</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 font-sans">
     <div class="flex justify-center items-center min-h-screen">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Sign Up</h2>
-            
-            <!-- Display errors or success -->
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Créer un compte</h2>
+
+            <!-- Affichage des erreurs -->
             <?php if ($error): ?>
                 <div class="bg-red-200 text-red-800 p-3 mb-6 rounded">
-                    <?php echo $error; ?>
-                </div>
-            <?php elseif ($success): ?>
-                <div class="bg-green-200 text-green-800 p-3 mb-6 rounded">
-                    <?php echo $success; ?>
+                    <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Sign Up Form -->
+            <!-- Affichage du succès -->
+            <?php if ($success): ?>
+                <div class="bg-green-200 text-green-800 p-3 mb-6 rounded">
+                    <?php echo htmlspecialchars($success); ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Formulaire d'inscription -->
             <form method="POST" action="signup.php">
                 <div class="mb-4">
-                    <label for="email" class="block text-gray-700">Email</label>
-                    <input type="email" name="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email" required />
+                    <label for="name" class="block text-gray-700">Nom</label>
+                    <input type="text" name="name" id="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre nom" required />
                 </div>
-                
+
                 <div class="mb-4">
-                    <label for="password" class="block text-gray-700">Password</label>
-                    <input type="password" name="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your password" required />
+                    <label for="email" class="block text-gray-700">Adresse Email</label>
+                    <input type="email" name="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre email" required />
                 </div>
 
                 <div class="mb-6">
-                    <label for="confirm_password" class="block text-gray-700">Confirm Password</label>
-                    <input type="password" name="confirm_password" id="confirm_password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Confirm your password" required />
+                    <label for="password" class="block text-gray-700">Mot de passe</label>
+                    <input type="password" name="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre mot de passe" required />
                 </div>
 
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300">Sign Up</button>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300">
+                    Créer un compte
+                </button>
             </form>
 
             <div class="mt-4 text-center">
-                <p class="text-gray-600">Already have an account? <a href="login.php" class="text-blue-500">Log In</a></p>
+                <p class="text-gray-600">Vous avez déjà un compte ? <a href="login.php" class="text-blue-500">Connectez-vous</a></p>
             </div>
         </div>
     </div>
