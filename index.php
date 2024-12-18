@@ -39,13 +39,13 @@ require_once 'config.php';
        <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="rooms.php">
         Rooms
        </a>
-       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="#">
+       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="amenties.php">
         Amenities
        </a>
-       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="#">
+       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="dining.php">
         Dining
        </a>
-       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="#">
+       <a class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-500 transition duration-300" href="contact.php">
         Contact
        </a>
       </div>
