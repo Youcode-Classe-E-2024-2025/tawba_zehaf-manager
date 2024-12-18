@@ -105,7 +105,7 @@ require_once 'config.php';
     <p class="mt-4 text-gray-600">
      Experience luxury and comfort in the heart of the city.
     </p>
-    <a class="mt-8 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" href="#">
+    <a class="mt-8 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" href="reservation.php">
      Book Now
     </a>
    </div>
