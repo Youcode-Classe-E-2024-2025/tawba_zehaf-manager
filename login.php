@@ -1,5 +1,24 @@
 <?php
 require_once 'config.php'; // Inclure le fichier de connexion à la base de données
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifiez si l'email et le mot de passe sont corrects
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Vérification de l'email et du mot de passe pour un administrateur
+    if ($email === 'admin@admin' && $password === 'admin') {
+        // L'utilisateur est un administrateur, enregistrez cette information dans la session
+        $_SESSION['is_admin'] = true;
+        header('Location: dashboard.php'); // Rediriger vers le tableau de bord
+        exit;
+    } else {
+        // Sinon, rediriger vers la page de connexion ou afficher une erreur
+        $_SESSION['is_admin'] = false;
+        echo "<script>alert('Email ou mot de passe incorrect.');</script>";
+    }
+}
 
 // Initialisation des variables d'erreur
 $error = '';

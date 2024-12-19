@@ -1,15 +1,42 @@
 <?php
-$host = "127.0.0.1"; // Or localhost
-$dbname = "hotel_db"; // Replace with your database name
-$username = "root"; // Default for Laragon
-$password = ""; // Empty for Laragon
+session_start();
+
+// Vérifiez si l'utilisateur est connecté en tant qu'administrateur
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    header('Location: login.php'); // Rediriger vers la page de connexion
+    exit;
+}
+
+// Votre code de tableau de bord ici (restant inchangé)
+$host = "127.0.0.1"; // Ou localhost
+$dbname = "hotel_db"; // Remplacer par votre nom de base de données
+$username = "root"; // Par défaut pour Laragon
+$password = ""; // Vide pour Laragon
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Database connection error: " . $e->getMessage());
+    die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
+
+// Function to update the reservation status
+if (isset($_POST['update_status'])) {
+    $reservation_id = $_POST['reservation_id'];
+    $new_status = $_POST['status'];
+
+    // Ensure valid status value
+    if (in_array($new_status, ['pending', 'confirmed', 'cancelled'])) {
+        $update_query = "UPDATE reservations SET status = :status WHERE id = :reservation_id";
+        $stmt_update = $pdo->prepare($update_query);
+        $stmt_update->execute(['status' => $new_status, 'reservation_id' => $reservation_id]);
+
+        echo "<script>alert('Reservation status updated successfully!');</script>";
+    } else {
+        echo "<script>alert('Invalid status!');</script>";
+    }
+}
+
 
 // Total Users
 $query_users = "SELECT COUNT(*) AS total_users FROM users";
@@ -24,17 +51,25 @@ $stmt_services->execute();
 $total_services = $stmt_services->fetch(PDO::FETCH_ASSOC)['total_services'];
 
 // Total Reservations
-$query_reservations = "SELECT COUNT(*) AS total_reservations FROM reservations";
+$query_reservations = "
+SELECT r.id, u.name AS user_name, s.name AS service_name, r.reservation_time, r.status
+FROM reservations r
+JOIN users u ON r.user_id = u.id
+JOIN services s ON r.service_id = s.id";
 $stmt_reservations = $pdo->prepare($query_reservations);
 $stmt_reservations->execute();
-$total_reservations = $stmt_reservations->fetch(PDO::FETCH_ASSOC)['total_reservations'];
-
+$reservations = $stmt_reservations->fetchAll(PDO::FETCH_ASSOC);
+$query_reservations_count = "SELECT COUNT(*) AS total_reservations FROM reservations";
+$stmt_reservations_count = $pdo->prepare($query_reservations_count);
+$stmt_reservations_count->execute();
+$total_reservations = $stmt_reservations_count->fetch(PDO::FETCH_ASSOC)['total_reservations'];
 // Available Slots
 $query_slots = "SELECT COUNT(*) AS total_slots FROM available_slots WHERE is_booked = 0";
 $stmt_slots = $pdo->prepare($query_slots);
 $stmt_slots->execute();
 $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +107,7 @@ $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
                 <!-- Card 1 -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
-                        <img alt="Icon representing total users" class="w-12 h-12 mr-4" height="50" src="https://storage.googleapis.com/a1aa/image/4SN1apMeigw3OawHf3jWXs44QjjzfOqJl18Uk5futRH6MpxPB.jpg" width="50"/>
+                        <img alt="Icon representing total users" class="w-12 h-12 mr-4" height="50" src="images\users.jpg" width="50"/>
                         <div>
                             <h2 class="text-xl font-bold">Total Users</h2>
                             <p class="text-gray-600"><?= $total_users ?></p>
@@ -82,7 +117,7 @@ $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
                 <!-- Card 2 -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
-                        <img alt="Icon representing total services" class="w-12 h-12 mr-4" height="50" src="https://storage.googleapis.com/a1aa/image/2xabq1WMM3bfHCYJzW9Mf7SaWTdedRWxJG7IJMOIFpVpm04nA.jpg" width="50"/>
+                        <img alt="Icon representing total services" class="w-12 h-12 mr-4" height="50" src="images\services.jpg" width="50"/>
                         <div>
                             <h2 class="text-xl font-bold">Total Services</h2>
                             <p class="text-gray-600"><?= $total_services ?></p>
@@ -92,7 +127,7 @@ $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
                 <!-- Card 3 -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
-                        <img alt="Icon representing total reservations" class="w-12 h-12 mr-4" height="50" src="https://storage.googleapis.com/a1aa/image/IBWHQs54Dc4jANSXNye9pBgrnzrimVR70iuShGy8NbSoJNeTA.jpg" width="50"/>
+                        <img alt="Icon representing total reservations" class="w-12 h-12 mr-4" height="50" src="images\totalreservation.jpg" width="50"/>
                         <div>
                             <h2 class="text-xl font-bold">Total Reservations</h2>
                             <p class="text-gray-600"><?= $total_reservations ?></p>
@@ -102,7 +137,7 @@ $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
                 <!-- Card 4 -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
-                        <img alt="Icon representing available slots" class="w-12 h-12 mr-4" height="50" src="https://storage.googleapis.com/a1aa/image/2uezeUeBAXBNipdyz9AzyBf9JXaP9V6zVHggVJIVNZhLNpxPB.jpg" width="50"/>
+                        <img alt="Icon representing available slots" class="w-12 h-12 mr-4" height="50" src="images\avaiblesorts.jpg" width="50"/>
                         <div>
                             <h2 class="text-xl font-bold">Available Slots</h2>
                             <p class="text-gray-600"><?= $total_slots ?></p>
@@ -112,36 +147,39 @@ $total_slots = $stmt_slots->fetch(PDO::FETCH_ASSOC)['total_slots'];
             </div>
 
             <!-- Recent Reservations -->
-            <div class="mt-8">
-                <h2 class="text-2xl font-bold mb-4">Recent Reservations</h2>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <table class="min-w-full bg-white">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border-b border-gray-200">User</th>
-                                <th class="py-2 px-4 border-b border-gray-200">Service</th>
-                                <th class="py-2 px-4 border-b border-gray-200">Time</th>
-                                <th class="py-2 px-4 border-b border-gray-200">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">John Doe</td>
-                                <td class="py-2 px-4 border-b border-gray-200">Spa</td>
-                                <td class="py-2 px-4 border-b border-gray-200">2023-10-01 14:00</td>
-                                <td class="py-2 px-4 border-b border-gray-200">Confirmed</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">Jane Smith</td>
-                                <td class="py-2 px-4 border-b border-gray-200">Massage</td>
-                                <td class="py-2 px-4 border-b border-gray-200">2023-10-02 10:00</td>
-                                <td class="py-2 px-4 border-b border-gray-200">Pending</td>
-                            </tr>
-                            <!-- Add other reservation rows as needed -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200">User</th>
+                        <th class="py-2 px-4 border-b border-gray-200">Service</th>
+                        <th class="py-2 px-4 border-b border-gray-200">Time</th>
+                        <th class="py-2 px-4 border-b border-gray-200">Status</th>
+                        <th class="py-2 px-4 border-b border-gray-200">Action</th> <!-- Add Action Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($reservations as $reservation): ?>
+                        <tr>
+                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($reservation['user_name']) ?></td>
+                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($reservation['service_name']) ?></td>
+                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($reservation['reservation_time']) ?></td>
+                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($reservation['status']) ?></td>
+                            <td class="py-2 px-4 border-b border-gray-200">
+                                <form method="POST" action="">
+                                    <input type="hidden" name="reservation_id" value="<?= $reservation['id'] ?>" />
+                                    <select name="status" class="border px-2 py-1">
+                                        <option value="pending" <?= $reservation['status'] == 'pending' ? 'selected' : '' ?>>Pending</option>
+                                        <option value="confirmed" <?= $reservation['status'] == 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                                        <option value="cancelled" <?= $reservation['status'] == 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                    </select>
+                                    <button type="submit" name="update_status" class="ml-2 bg-blue-500 text-white px-4 py-1 rounded">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
         </main>
 
         <!-- Footer -->
