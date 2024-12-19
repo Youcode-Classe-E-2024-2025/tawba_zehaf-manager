@@ -1,4 +1,4 @@
-<?php
+<?php 
 require_once 'config.php';
 ?>
 <html lang="en">
@@ -51,6 +51,9 @@ require_once 'config.php';
       </div>
      </div>
      <div class="hidden md:flex items-center space-x-3">
+      <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="dashboard.php">
+       Dashboard
+      </a>
       <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="login.php">
        Log In
       </a>
