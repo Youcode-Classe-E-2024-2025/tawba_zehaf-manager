@@ -51,9 +51,9 @@ require_once 'config.php';
       </div>
      </div>
      <div class="hidden md:flex items-center space-x-3">
-      <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="dashboard.php">
+      <!-- <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="dashboard.php">
        Dashboard
-      </a>
+      </a> -->
       <a class="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300" href="login.php">
        Log In
       </a>
@@ -108,7 +108,7 @@ require_once 'config.php';
     <p class="mt-4 text-gray-600">
      Experience luxury and comfort in the heart of the city.
     </p>
-    <a class="mt-8 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" href="#">
+    <a class="mt-8 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" href="booknow.php">
      Book Now
     </a>
    </div>
