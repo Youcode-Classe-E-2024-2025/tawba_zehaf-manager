@@ -1,19 +1,16 @@
 <?php
-require_once 'config.php'; // Database connection
-
-// Initialize variables
+require_once 'config.php'; 
 $error = '';
 $success = '';
 
-// Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve form data
+   
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
     $role_id = 1; // Default role, 1 = "user"
 
-    // Validate fields
+    
     if (empty($name) || empty($email) || empty($password)) {
         $error = "All fields are required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -22,23 +19,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Password must be at least 6 characters long.";
     } else {
         try {
-            // Check if the email already exists
+        
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             if ($stmt->rowCount() > 0) {
                 $error = "This email is already in use.";
             } else {
-                // Check if the role_id exists in the 'roles' table
+            
                 $role_check = $pdo->prepare("SELECT * FROM roles WHERE id = :role_id");
                 $role_check->execute(['role_id' => $role_id]);
 
                 if ($role_check->rowCount() == 0) {
                     $error = "The specified role does not exist.";
                 } else {
-                    // Hash the password
+                    
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                    // Insert the user into the database
+                    
                     $insert_stmt = $pdo->prepare("INSERT INTO users (role_id, name, email, password) 
                                                  VALUES (:role_id, :name, :email, :password)");
                     $insert_stmt->execute([

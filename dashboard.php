@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Vérifiez si l'utilisateur est connecté en tant qu'administrateur
+
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header('Location: login.php'); // Rediriger vers la page de connexion
     exit;
@@ -20,12 +20,11 @@ try {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 
-// Function to update the reservation status
 if (isset($_POST['update_status'])) {
     $reservation_id = $_POST['reservation_id'];
     $new_status = $_POST['status'];
 
-    // Ensure valid status value
+    
     if (in_array($new_status, ['pending', 'confirmed', 'cancelled'])) {
         $update_query = "UPDATE reservations SET status = :status WHERE id = :reservation_id";
         $stmt_update = $pdo->prepare($update_query);

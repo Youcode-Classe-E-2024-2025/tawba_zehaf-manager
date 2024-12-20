@@ -4,7 +4,7 @@ require_once 'config.php'; // Your database configuration file
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php'); // Redirect to the login page
+    header('Location: login.php?redirect=booknow.php'); // Send the user to login and specify redirect target
     exit;
 }
 

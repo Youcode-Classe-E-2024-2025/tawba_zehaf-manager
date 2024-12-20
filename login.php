@@ -1,53 +1,53 @@
 <?php
-require_once 'config.php'; // Include the database connection file
+require_once 'config.php'; 
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if the email and password are correct for the admin
+    
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check if the email and password match the admin credentials
+
     if ($email === 'admin@admin' && $password === 'admin') {
-        // The user is an admin, store this information in the session
+        
         $_SESSION['is_admin'] = true;
-        header('Location: dashboard.php'); // Redirect to the dashboard
+        header('Location: dashboard.php');
         exit;
-    } else {
-        // Otherwise, show an error message or redirect to the login page
-        $_SESSION['is_admin'] = false;
+    } 
+    else {
+         $_SESSION['is_admin'] = false;
         echo "<script>alert('Incorrect email or password.');</script>";
     }
 }
 
-// Initialize error variables
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve form data
+    
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
     
-    // Validate the email using regex
+   
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email.";
     } elseif (empty($password)) {
         $error = "Please fill in all the fields.";
     } else {
         try {
-            // Search for the user by email in the database
+        
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                // Check if the password is correct
+                
                 if (password_verify($password, $user['password'])) {
-                    // Successful authentication
+                    
                     session_start();
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
-                    header('Location: dashboard.php'); // Redirect to a secure page
+                    header('Location: dashboard.php'); 
                     exit;
                 } else {
                     $error = "Incorrect password.";
