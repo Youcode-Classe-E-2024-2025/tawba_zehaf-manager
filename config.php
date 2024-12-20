@@ -1,8 +1,8 @@
 <?php
-$host = "127.0.0.1"; // Ou localhost
-$dbname = "hotel_db"; // Remplace par le nom de ta base de données
-$username = "root"; // Par défaut pour Laragon
-$password = ""; // Vide pour Laragon
+$host = "127.0.0.1"; 
+$dbname = "hotel_db"; 
+$username = "root"; 
+$password = ""; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

@@ -28,20 +28,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->rowCount() > 0) {
                 $error = "Cet email est déjà utilisé.";
             } else {
-                // Hash du mot de passe
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                // Vérifier si le role_id existe dans la table 'roles'
+                $role_check = $pdo->prepare("SELECT * FROM roles WHERE id = :role_id");
+                $role_check->execute(['role_id' => $role_id]);
 
-                // Insère l'utilisateur dans la base de données
-                $insert_stmt = $pdo->prepare("INSERT INTO users (role_id, name, email, password) 
-                                             VALUES (:role_id, :name, :email, :password)");
-                $insert_stmt->execute([
-                    'role_id' => $role_id,
-                    'name' => $name,
-                    'email' => $email,
-                    'password' => $hashed_password
-                ]);
+                if ($role_check->rowCount() == 0) {
+                    $error = "Le rôle spécifié n'existe pas.";
+                } else {
+                    // Hash du mot de passe
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                $success = "Compte créé avec succès. Vous pouvez vous connecter.";
+                    // Insère l'utilisateur dans la base de données
+                    $insert_stmt = $pdo->prepare("INSERT INTO users (role_id, name, email, password) 
+                                                 VALUES (:role_id, :name, :email, :password)");
+                    $insert_stmt->execute([
+                        'role_id' => $role_id,
+                        'name' => $name,
+                        'email' => $email,
+                        'password' => $hashed_password
+                    ]);
+
+                    $success = "Compte créé avec succès. Vous pouvez vous connecter.";
+                }
             }
         } catch (PDOException $e) {
             $error = "Erreur lors de l'inscription : " . $e->getMessage();

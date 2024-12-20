@@ -15,8 +15,6 @@ $stmt_services->execute();
 $services = $stmt_services->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupérez les créneaux horaires disponibles pour chaque service
-
-// Récupérez les créneaux horaires disponibles pour chaque service
 $query_slots = "SELECT s.id AS service_id, a.slot_time
                 FROM available_slots a
                 JOIN services s ON a.service_id = s.id
@@ -25,18 +23,30 @@ $stmt_slots = $pdo->prepare($query_slots);
 $stmt_slots->execute();
 $available_slots = $stmt_slots->fetchAll(PDO::FETCH_ASSOC);
 
+// Fonction pour formater le créneau horaire
+function format_slot_time($slot_time) {
+    return date("d M Y - H:i", strtotime($slot_time)); // Formater en "19 Décembre 2024 - 14:00"
+}
+
 // Traitement de la soumission du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $service_id = $_POST['service_id'];
     $slot_time = $_POST['slot_time'];
 
+    // Vérifiez si le créneau horaire a bien été sélectionné
+    if (empty($slot_time)) {
+        echo "<script>alert('Veuillez sélectionner un créneau horaire.');</script>";
+        exit; // Stoppe l'exécution pour éviter une insertion incorrecte
+    }
+
     // Vérifier si le créneau horaire est déjà réservé
     $check_slot_query = "SELECT * FROM available_slots WHERE service_id = :service_id AND slot_time = :slot_time AND is_booked = 0";
     $stmt_check_slot = $pdo->prepare($check_slot_query);
     $stmt_check_slot->execute(['service_id' => $service_id, 'slot_time' => $slot_time]);
-    
+
     if ($stmt_check_slot->rowCount() > 0) {
-        // Réservez le créneau horaire
+        // Le créneau horaire est disponible, on peut le réserver
+        // Réservez le créneau horaire en le marquant comme réservé
         $book_slot_query = "UPDATE available_slots SET is_booked = 1 WHERE service_id = :service_id AND slot_time = :slot_time";
         $stmt_book_slot = $pdo->prepare($book_slot_query);
         $stmt_book_slot->execute(['service_id' => $service_id, 'slot_time' => $slot_time]);
@@ -93,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <select name="slot_time" id="slot_time" class="mt-2 block w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Sélectionnez un créneau horaire</option>
                         <?php foreach ($available_slots as $slot): ?>
-                            <option value="<?= $slot['slot_time'] ?>"><?= $slot['slot_time'] ?></option>
+                            <option value="<?= $slot['slot_time'] ?>"><?= format_slot_time($slot['slot_time']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

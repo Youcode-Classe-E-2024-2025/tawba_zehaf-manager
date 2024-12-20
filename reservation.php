@@ -1,28 +1,44 @@
-
 <?php
 require_once 'config.php'; // Make sure to include your DB connection here.
 
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    echo "Vous devez être connecté pour faire une réservation.";
+    exit;
+}
+
+$user_id = $_SESSION['user_id']; // Get the logged-in user's ID from session
+
+// Check the user's status from the database (ensure the user is 'active')
+$stmt = $pdo->prepare("SELECT status FROM users WHERE id = :user_id");
+$stmt->execute(['user_id' => $user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($user['status'] === 'archived') {
+    echo "Votre compte est archivé. Vous ne pouvez pas effectuer de réservations.";
+    exit;
+}
+
+// Check if user is an admin
+$is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate and sanitize inputs
-    if (isset($_POST['room']) && isset($_POST['reservation_time'])) {
-        $room = $_POST['room'];
+    if (isset($_POST['service_id']) && isset($_POST['reservation_time'])) {
+        $service_id = $_POST['service_id'];
         $reservation_time = $_POST['reservation_time'];
-        $amenities = isset($_POST['amenities']) ? implode(', ', $_POST['amenities']) : '';
-        $dining = isset($_POST['dining']) ? implode(', ', $_POST['dining']) : '';
-
-        // Assuming the user ID is retrieved from a session
-        // Replace with actual logic to get the logged-in user's ID
-        $user_id = 1; // This should be dynamic based on the logged-in user (e.g., $_SESSION['user_id'])
+        $status = $is_admin ? $_POST['status'] : 'pending'; // Admin can choose the status, others default to 'pending'
 
         try {
-            // Insert reservation data into database
-            $stmt = $pdo->prepare("INSERT INTO reservations (user_id, room, reservation_time, amenities, dining) VALUES (:user_id, :room, :reservation_time, :amenities, :dining)");
+            // Insert reservation data into the database
+            $stmt = $pdo->prepare("INSERT INTO reservations (user_id, service_id, reservation_time, status) VALUES (:user_id, :service_id, :reservation_time, :status)");
             $stmt->execute([
                 'user_id' => $user_id,
-                'room' => $room,
+                'service_id' => $service_id,
                 'reservation_time' => $reservation_time,
-                'amenities' => $amenities,
-                'dining' => $dining
+                'status' => $status
             ]);
 
             echo "Réservation effectuée avec succès.";
@@ -35,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,17 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Form</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
-
 </head>
 <body class="bg-gray-100">
     <div class="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
         <h1 class="text-2xl font-semibold text-center text-gray-700 mb-6">Make a Reservation</h1>
         <form action="reservation.php" method="POST" class="space-y-6">
-            <!-- Hidden input for the user_id (assumed logged-in user) -->
-            <input type="hidden" name="user_id" value="1"> <!-- Replace with dynamic user ID from session -->
-
             <!-- Service Selection -->
             <div>
                 <label for="service" class="block text-sm font-medium text-gray-600">Select Service</label>
@@ -72,15 +83,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="datetime-local" id="reservation_time" name="reservation_time" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
             </div>
 
-            <!-- Reservation Status -->
-            <div>
-                <label for="status" class="block text-sm font-medium text-gray-600">Reservation Status</label>
-                <select name="status" id="status" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="pending" selected>Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-            </div>
+            <!-- Reservation Status (only visible to admins) -->
+            <?php if ($is_admin): ?>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-600">Reservation Status</label>
+                    <select name="status" id="status" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="pending" selected>Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            <?php else: ?>
+                <!-- Hidden field for non-admin users -->
+                <input type="hidden" name="status" value="pending">
+            <?php endif; ?>
 
             <!-- Submit Button -->
             <div>
