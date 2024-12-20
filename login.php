@@ -2,28 +2,28 @@
 require_once 'config.php'; 
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+//     $email = $_POST['email'];
+//     $password = $_POST['password'];
 
 
-    if ($email === 'admin@admin' && $password === 'admin') {
+//     if ($email === 'admin@admin' && $password === 'admin') {
         
-        $_SESSION['is_admin'] = true;
-        header('Location: dashboard.php');
-        exit;
-    } 
-    else {
-         $_SESSION['is_admin'] = false;
-        echo "<script>alert('Incorrect email or password.');</script>";
-    }
-}
+//         $_SESSION['is_admin'] = true;
+//         header('Location: dashboard.php');
+//         exit;
+//     } 
+//     else {
+//          $_SESSION['is_admin'] = false;
+//         echo "<script>alert('Incorrect email or password.');</script>";
+//     }
+// }
 
 
 $error = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_login'])) {
     
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
@@ -35,19 +35,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Please fill in all the fields.";
     } else {
         try {
+            if ($email === 'admin@admin.com' && $password === 'admin') {
         
+                $_SESSION['is_admin'] = true;
+                header('Location: dashboard.php');
+                exit;
+            } 
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            
             if ($user) {
                 
                 if (password_verify($password, $user['password'])) {
                     
                     session_start();
+                    
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
-                    header('Location: dashboard.php'); 
+                    header('Location: ./user.php'); 
                     exit;
                 } else {
                     $error = "Incorrect password.";
@@ -84,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <!-- Login form -->
-            <form method="POST" action="login.php" novalidate>
+            <form method="POST" action="" novalidate>
                 <div class="mb-4">
                     <label for="email" class="block text-gray-700">Email Address</label>
                     <input type="email" name="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your email" required />
@@ -95,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="password" name="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your password" required />
                 </div>
 
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300">
+                <button type="submit" name="submit_login" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300">
                     Login
                 </button>
             </form>
