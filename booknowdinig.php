@@ -87,7 +87,7 @@ try {
     <div class="container mx-auto p-6">
         <h1 class="text-4xl font-bold text-center text-gray-800 mb-12">Reservation</h1>
 
-        <form method="POST" action="booknowdining.php" class="space-y-6 max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
+        <form method="POST" action="booknowdinig.php" class="space-y-6 max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
             <!-- Service Selection -->
             <div>
                 <label for="service" class="block text-sm font-medium text-gray-600">Select a service</label>
