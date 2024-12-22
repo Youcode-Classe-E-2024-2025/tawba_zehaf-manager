@@ -5,7 +5,7 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    echo "Vous devez être connecté pour faire une réservation.";
+    echo "You must be logged in to make a reservation.";
     exit;
 }
 
@@ -17,10 +17,9 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Check if the 'status' key exists before using it
 if (isset($user['status']) && $user['status'] === 'archived') {
-    echo "Votre compte est archivé. Vous ne pouvez pas effectuer de réservations.";
+    echo "Your account is archived. You cannot make reservations.";
     exit;
 }
-
 
 // Check if user is an admin
 $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
@@ -30,7 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['service_id']) && isset($_POST['reservation_time'])) {
         $service_id = $_POST['service_id'];
         $reservation_time = $_POST['reservation_time'];
-        $status = $is_admin ? $_POST['status'] : 'pending'; // Admin can choose the status, others default to 'pending'
+
+        // Admin can select the status, else set it to 'pending' by default
+        $status = $is_admin && isset($_POST['status']) ? $_POST['status'] : 'pending'; 
 
         try {
             // Insert reservation data into the database
@@ -42,16 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'status' => $status
             ]);
 
-            echo "Réservation effectuée avec succès.";
+            echo "Reservation successfully made.";
         } catch (PDOException $e) {
-            echo "Erreur lors de la réservation : " . $e->getMessage();
+            echo "Error during reservation: " . $e->getMessage();
         }
     } else {
-        echo "Veuillez remplir tous les champs nécessaires.";
+        echo "Please fill in all required fields.";
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -85,18 +85,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <!-- Reservation Status (only visible to admins) -->
-            <!-- <?php if ($is_admin): ?>
-                <div>
+            <?php if ($is_admin): ?>
+                <!-- <div>
                     <label for="status" class="block text-sm font-medium text-gray-600">Reservation Status</label>
                     <select name="status" id="status" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="pending" selected>Pending</option>
                         <option value="confirmed">Confirmed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
-                </div>
-            <!-- <?php else: ?> --> 
-                <!-- Hidden field for non-admin users -->
-                <!-- <input type="hidden" name="status" value="pending"> -->
+                </div> -->
+            <?php else: ?>
+                <!-- Hidden field for non-admin users, defaults to 'pending' -->
+                <input type="hidden" name="status" value="pending">
             <?php endif; ?>
 
             <!-- Submit Button -->
