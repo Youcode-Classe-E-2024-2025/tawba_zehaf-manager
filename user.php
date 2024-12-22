@@ -268,7 +268,7 @@ require_once 'config.php';
                   <button class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" onclick="toggleDetails('detailsResto')">
                      View Details
                   </button>
-                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="#">
+                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="booknowdining.php">
                      Book Now
                   </a>
                </div>
@@ -296,7 +296,7 @@ require_once 'config.php';
                   <button class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" onclick="toggleDetails('detailsCafe')">
                      View Details
                   </button>
-                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="#">
+                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="booknowdinig.php">
                      Book Now
                   </a>
                </div>
@@ -324,7 +324,7 @@ require_once 'config.php';
                   <button class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-400 transition duration-300" onclick="toggleDetails('detailsBar')">
                      View Details
                   </button>
-                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="#">
+                  <a class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition duration-300" href="booknowdinig.php">
                      Book Now
                   </a>
                </div>

@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <!-- Reservation Status (only visible to admins) -->
-            <?php if ($is_admin): ?>
+            <!-- <?php if ($is_admin): ?>
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-600">Reservation Status</label>
                     <select name="status" id="status" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -93,9 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
-            <?php else: ?>
+            <!-- <?php else: ?> --> 
                 <!-- Hidden field for non-admin users -->
-                <input type="hidden" name="status" value="pending">
+                <!-- <input type="hidden" name="status" value="pending"> -->
             <?php endif; ?>
 
             <!-- Submit Button -->
