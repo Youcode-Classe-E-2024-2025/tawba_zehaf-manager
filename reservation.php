@@ -10,16 +10,17 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id']; // Get the logged-in user's ID from session
-
-// Check the user's status from the database (ensure the user is 'active')
+/// Fetch the user's status from the database
 $stmt = $pdo->prepare("SELECT status FROM users WHERE id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($user['status'] === 'archived') {
+// Check if the 'status' key exists before using it
+if (isset($user['status']) && $user['status'] === 'archived') {
     echo "Votre compte est archivé. Vous ne pouvez pas effectuer de réservations.";
     exit;
 }
+
 
 // Check if user is an admin
 $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
